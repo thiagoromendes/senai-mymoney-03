@@ -32,9 +32,8 @@ abstract class _LoginController with Store {
         passwordControler: passwordController)) {
       email = emailController;
       password = passwordController;
-      isLoading = true;
+      setLoading();
       await sendData();
-      isLoading = false;
     } else {
       AppSnackbar.openMessage(
         context: buildContext,
@@ -58,12 +57,19 @@ abstract class _LoginController with Store {
     );
 
     result.containsKey('success')
-        ? isSuccess = true
-        : getException(result['expection']);
+        ? setSucess()
+        : getException(result['exception']);
   }
 
   @action
+  void setSucess({bool? value}) => isSuccess = value ?? !isSuccess;
+
+  @action
+  void setLoading({bool? value}) => isLoading = value ?? !isLoading;
+
+  @action
   void getException(int code) {
+    setLoading();
     switch (code) {
       case 401:
         AppSnackbar.openMessage(

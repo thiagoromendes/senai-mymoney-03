@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:my_money/src/modules/login/components/register_link.dart';
 import 'package:my_money/src/modules/login/controller/login_controller.dart';
 import 'package:my_money/src/router/app_router.dart';
@@ -19,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   LoginController controller = LoginController();
   TextEditingController loginController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  late ReactionDisposer sendDataReactionDisposer;
 
   @override
   void initState() {
@@ -26,10 +28,27 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    reactsToSendDataSuccess();
+  }
+
+  @override
   void dispose() {
     loginController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  void reactsToSendDataSuccess() {
+    sendDataReactionDisposer =
+        reaction((_) => controller.isSuccess, (bool success) async {
+      if (success) {
+        controller.setSucess();
+        await Navigator.of(context).pushNamed(AppRouter.home);
+        controller.setLoading();
+      }
+    });
   }
 
   @override
